@@ -1,0 +1,80 @@
+﻿
+@{
+    ViewBag.Title = "Bind";
+}
+
+<h2>Bind</h2>
+
+<script src="~/Scripts/jquery-3.3.1.js"></script>
+<script src="~/Scripts/jquery-3.3.1.min.js"></script>
+<h2>Cascading DropDownList For Country State And City from Employee Controller</h2>
+
+<div>
+    <div>
+        <label for="country">Select Country</label>
+        @Html.DropDownList("dropdownCountry", new SelectList(string.Empty, "Value", "Text"), "Please select a country", new { @class = "form-control" })
+    </div>
+    <br />
+    <br />
+    <div>
+        <label for="country">Select State</label>
+        @Html.DropDownList("dropdownState", new SelectList(string.Empty, "Value", "Text"), "Please select a state", new { @class = "form-control" })
+    </div>
+    <br />
+    <br />
+    <div>
+        <label for="country">Select City</label>
+        @Html.DropDownList("bindcity", new SelectList(string.Empty, "Value", "Text"), "Please select a city", new { @class = "form-control" })
+    </div>
+
+</div>
+<script type="text/javascript">
+
+    $(function () {
+        $.ajax({
+            type: 'GET',
+            url: '/Employee/GetCountries',
+            datatype: 'Json',
+            success: function (data) {
+                $.each(data, function (index, row) {
+                    $('#dropdownCountry').append("<option value ='" + row.cid + "'>" + row.cname + "</option>");
+                });
+            }
+        });
+
+        $('#dropdownCountry').change(function () {
+            $('#dropdownState').empty();
+            $('#bindcity').empty();
+            $.ajax({
+                type: 'POST',
+                url: '/Employee/GetStatesByCountryId',
+                datatype: 'Json',
+                data: { countryId: $('#dropdownCountry').val()},
+                success: function (data) {
+                    $('#dropdownState').append("<option value='0'>Select a state</option>")
+                    $.each(data, function (index, row) {
+                        $('#dropdownState').append("<option value ='"+ row.stateid+"'>" + row.statename + "</option>")
+                    });
+                }
+            });
+        });
+
+
+        $('#dropdownState').change(function () {
+            $('#bindcity').empty();
+            $.ajax({
+                type: 'POST',
+                url: '/Employee/GetCityByStateId',
+                datatype: 'Json',
+                data: { stateid: $('#dropdownState').val() },
+                success: function (data) {
+                    $('#bindcity').append("<option value='0'>Select a City</option>")
+                    $.each(data, function (index, row) {
+                        $('#bindcity').append("<option value ='" + row.cityid + "'>" + row.cityname + "</option>")
+                    });
+                }
+            });
+        });
+    });
+</script>
+
